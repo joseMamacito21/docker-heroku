@@ -1,0 +1,18 @@
+sudo: required
+services:
+- docker
+before_install:
+- docker build -t josemelendezbolanos21/heroku-test -f ./client/Dockerfile.dev ./client
+script:
+- docker run josemelendezbolanos21/heroku-test npm run test -- --coverage
+after_success:
+- docker build -t josemelendezbolanos21/heroku-client ./client
+- docker build -t josemelendezbolanos21/heroku-server ./server
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+- docker push josemelendezbolanos21/heroku-client
+- docker push josemelendezbolanos21/heroku-server
+deploy:
+  provider: heroku
+  api_key:
+    secure: hrg4u4MO0f2FKgTsckU1uWekXy9631IXLAMC7uRB7I2usaCyoGkTugINoDEus29jY13nV097ju7GCC6+yI9d0P20O7WTvaD6D4ZilDQdMeWu5IL1TV+2YDqoaByWMZ0vShE+tPeNCDQs4qg0UUVwF+wqOFcSmCJP0M/rwHdkoFdJYb7tDgCXOXsSIs8gcP5fmNvC5PTVGtNMiz+c6D4zIhuOPuZA59exApWbPhG2AFzLsg91jUMs4KgZqvfFVtYHyuhywxhKICjHuEFI0giKV3goJXM3kT5+3YuHj2NQRqj4P+VmfQJ096EsF/efMzzB30yVYs8Kr0ltmIt509oFMBCmhdaBAOTUtFRc26nL8rvp5kYljtm7FcKwRfxAinrbo1wKClKtfKqybhbJYtj4NtkJo3M/Km/jlE76qza1OTz+PC9/fzs4zIvG+kawlM/8pfuvgeZrJFjFeseSZi4qdImrVC4/cDnHNCRvCmVDGT7YLA7skJ04CVKFloCDg/cadM40fQN2y+cAjDfLCfgo3WJ3SJVyD9+phcLSHPmctONNxzDFtjQdx12mAPC8txvgsQHTSa/fEmxl3P9aDIYxyVhC43Emm1nvp/bw0/GRkncMxU2NK1ejZn0Q9DboCpoBorRTzQx0HA1PksaeNBV0xmlMWAMpcvDUCF+Wu8RUv18=
+  app: calm-harbor-66475
